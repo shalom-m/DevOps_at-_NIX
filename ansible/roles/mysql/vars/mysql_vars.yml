@@ -1,0 +1,5 @@
+mysql_database_name: "serpent_surge_db"
+mysql_user: "serpent_user"
+mysql_root_password: "root_password"
+mysql_user_home: "/home/{{ mysql_user }}"
+mycnf_path: "{{ mysql_user_home }}/.my.cnf"

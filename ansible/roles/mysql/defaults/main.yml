@@ -1,0 +1,9 @@
+# /etc/ansible/roles/mysql_db_setup/defaults/main.yml
+
+mysql_db_name: "serpent_surge_db"
+mysql_user_name: "backup_user"
+mysql_user_password: "your_secure_password"  
+backup_cnf_file: "/etc/mysql/backup.cnf" 
+
+ansible_python_interpreter: /usr/bin/python3
+ 

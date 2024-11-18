@@ -1,0 +1,28 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Start and enable Nginx service
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Create the Nginx reverse proxy configuration file
+  ansible.builtin.template:
+    src: nginx_reverse_proxy.j2
+    dest: /etc/nginx/sites-available/reverse_proxy.conf
+  notify:
+    - Reload Nginx
+
+- name: Enable the reverse proxy site
+  ansible.builtin.command:
+    cmd: nginx -t && ln -s /etc/nginx/sites-available/reverse_proxy.conf /etc/nginx/sites-enabled/reverse_proxy.conf
+  args:
+    removes: /etc/nginx/sites-enabled/reverse_proxy.conf
+  notify:
+    - Reload Nginx
+

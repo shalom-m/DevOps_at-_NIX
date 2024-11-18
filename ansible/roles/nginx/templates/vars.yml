@@ -1,0 +1,4 @@
+server_name: "localhost"
+frontend_port: 3000 
+backend_port: 9000  
+database_port: 3306 
