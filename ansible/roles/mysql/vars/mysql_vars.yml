@@ -1,5 +1,6 @@
 mysql_database_name: "serpent_surge_db"
+mysql_root_user: "root"
+mysql_root_password: "Pinkie_Lembo_Root"
 mysql_user: "serpent_user"
-mysql_root_password: "root_password"
-mysql_user_home: "/home/{{ mysql_user }}"
-mycnf_path: "{{ mysql_user_home }}/.my.cnf"
+mysql_user_password: "surgic@l_serpentpw"
+

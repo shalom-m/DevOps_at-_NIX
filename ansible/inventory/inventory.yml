@@ -3,3 +3,5 @@ all:
     localhost:
       ansible_connection: local
       ansible_user: root
+  vars:
+    base_dir: "/var/git/git_task/DevOps_at-_NIX"

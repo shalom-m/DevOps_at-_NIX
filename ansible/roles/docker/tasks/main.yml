@@ -37,3 +37,9 @@
     name: docker
     state: started
     enabled: yes
+
+- name: Run Docker Compose
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ base_dir }}"
+  become: yes

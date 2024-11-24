@@ -1,49 +1,44 @@
-version: '3.8'
+version: "3.9"
 
 services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_DATABASE: serpent_surge_db
-      MYSQL_USER: serpent_user  # Set the MySQL username
-      MYSQL_PASSWORD: flkghOIJSXsaMRH  # Set the MySQL password
-      MYSQL_ROOT_PASSWORD: Pinkie_Lembo_1999  # Set the MySQL root password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - serpent_network
 
   backend:
+    image: backend-image:latest
     build:
-      context: ./application  # Path to the application directory
-      dockerfile: backend/Dockerfile  # Dockerfile for backend (Node.js Alpine)
+      context: ${BACKEND_DIR}
+    environment:
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
     depends_on:
       - mysql
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_DATABASE: serpent_surge_db
-      MYSQL_USER: serpent_user  # Use the same MySQL username
-      MYSQL_PASSWORD: flkghOIJSXsaMRH  # Use the same MySQL password
+    ports:
+      - "3000:3000"
     networks:
       - serpent_network
-    ports:
-      - "3000:3000"  # Backend is exposed on port 3000
 
   frontend:
+    image: frontend-image:latest
     build:
-      context: ./application  # Path to the application directory
-      dockerfile: frontend/Dockerfile  # Dockerfile for frontend (Nginx + static files)
-    depends_on:
-      - backend
+      context: ${FRONTEND_DIR}
+    ports:
+      - "8080:80"
     networks:
       - serpent_network
-    ports:
-      - "8080:80"  # Frontend is exposed on port 8080, Nginx listens on port 80
 
 volumes:
-  mysql_data:   # Volume for persistent MySQL data
+  mysql_data:
 
 networks:
-  serpent_network:   # Custom network for seamless service communication
-    driver: bridge
+  serpent_network:
 

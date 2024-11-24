@@ -3,10 +3,10 @@
   hosts: all
   become: true
   vars_files: 
-    - /etc/ansible/roles/nginx/templates/vars.yml
-    - /etc/ansible/roles/mysql/vars/mysql_vars.yml 
+    - /var/git/git_task/DevOps_at-_NIX/ansible/roles/nginx/templates/vars.yml
+    - /var/git/git_task/DevOps_at-_NIX/ansible/roles/mysql/vars/mysql_vars.yml 
   roles:
     - common_prereq
     - mysql
-    - docker
     - nginx
+    - docker

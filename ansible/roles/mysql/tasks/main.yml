@@ -1,15 +1,17 @@
 ---
 
-- name: Generate MySQL password for serpent_user
-  set_fact:
-    mysql_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
-
-
 - name: Install MySQL Server
   apt:
     name: mysql-server
     state: present
   become: yes
+
+- name: Configure MySQL to listen on all interfaces
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = 0.0.0.0'
+  notify: Restart MySQL
 
 - name: Start and enable MySQL service
   service:
@@ -26,53 +28,31 @@
     recurse: yes
   become: yes
 
-
 - name: Create MySQL Database
   mysql_db:
     name: "{{ mysql_database_name }}"
     state: present
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
   become: yes
 
-- name: Create MySQL User and Grant Privileges
+- name: Create MySQL User
   mysql_user:
     name: "{{ mysql_user }}"
-    password: "{{ mysql_password }}"
+    password: "{{ mysql_user_password }}"
+    state: present
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+  become: yes
+
+- name: Grant ALL privileges to the MySQL User on the database
+  mysql_user:
+    name: "{{ mysql_user }}"
     priv: "{{ mysql_database_name }}.*:ALL"
     state: present
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
   become: yes
-
-
-
-- name: Ensure serpent_user exists
-  ansible.builtin.user:
-    name: "serpent_user"
-    home: "/home/serpent_user"
-    shell: "/bin/bash"
-    create_home: yes
-  become: yes
-
-
-- name: Set correct permissions on serpent_user home directory
-  file:
-    path: "/home/serpent_user"
-    owner: serpent_user
-    group: serpent_user
-    mode: '0700'
-  become: yes
-
-
-- name: Create MySQL .my.cnf for serpent_user
-  template:
-    src: "my.cnf.j2"  # Jinja2 template for the .my.cnf file
-    dest: "/home/serpent_user/.my.cnf"  # Path to the .my.cnf file in the MySQL user's home directory
-    owner: "serpent_user"  # Ensure the file is owned by serpent_user
-    group: "serpent_user"  # Set the group to serpent_user (optional)
-    mode: '0600'  # Ensure only the MySQL user can read and write the .my.cnf file
-  become: yes  # Run with elevated privileges to ensure permission changes are successful
-  become_user: "serpent_user"  # Ensure the task runs as the MySQL user, not root
-  notify:
-    - Restart MySQL  # Optional: restart MySQL after making configuration changes
-
 
 - name: Create score table in the database
   mysql_query:
@@ -83,6 +63,9 @@
         score INT,
         difficulty INT
       );
-    config_file: "/home/{{ mysql_user }}/.my.cnf"  # Path to the .my.cnf file containing credentials
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_user_password }}"
+    login_db: "{{ mysql_database_name }}"
+  
   become: yes
   delegate_to: localhost
