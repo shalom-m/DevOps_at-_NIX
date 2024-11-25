@@ -1,6 +1,6 @@
 server_name: "localhost"
 frontend_host: "./application/frontend"
-frontend_port: 8000
+frontend_port: 8080
 backend_host: "./application/backend"
 backend_port: 3000
 database_host: "mysql"
