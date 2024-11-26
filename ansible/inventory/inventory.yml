@@ -1,7 +1,14 @@
 all:
   hosts:
-    localhost:
-      ansible_connection: local
-      ansible_user: root
+    #localhost:
+      #ansible_connection: local
+      #ansible_user: root
+
+    ec2:
+      ansible_host: 13.49.24.21  
+      ansible_user: ubuntu        
+      ansible_ssh_private_key_file: /home/shah/Downloads/app_key1.pem  
+      ansible_python_interpreter: /usr/bin/python3  
+
   vars:
-    base_dir: "/var/git/git_task/DevOps_at-_NIX"
+  base_dir: "/var/git/git_task/DevOps_at-_NIX"

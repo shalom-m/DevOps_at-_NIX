@@ -30,6 +30,7 @@
 
 - name: Create MySQL Database
   mysql_db:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     name: "{{ mysql_database_name }}"
     state: present
     login_user: "{{ mysql_root_user }}"
@@ -38,8 +39,10 @@
 
 - name: Create MySQL User
   mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     name: "{{ mysql_user }}"
     password: "{{ mysql_user_password }}"
+    host: "%"
     state: present
     login_user: "{{ mysql_root_user }}"
     login_password: "{{ mysql_root_password }}"
@@ -47,6 +50,7 @@
 
 - name: Grant ALL privileges to the MySQL User on the database
   mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     name: "{{ mysql_user }}"
     priv: "{{ mysql_database_name }}.*:ALL"
     state: present
@@ -56,6 +60,7 @@
 
 - name: Create score table in the database
   mysql_query:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
     query: |
       CREATE TABLE IF NOT EXISTS score (
         id INT PRIMARY KEY AUTO_INCREMENT,

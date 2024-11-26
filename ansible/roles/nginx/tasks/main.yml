@@ -18,11 +18,31 @@
   notify:
     - Reload Nginx
 
-- name: Enable the reverse proxy site
-  ansible.builtin.command:
-    cmd: nginx -t && ln -s /etc/nginx/sites-available/reverse_proxy.conf /etc/nginx/sites-enabled/reverse_proxy.conf
-  args:
-    removes: /etc/nginx/sites-enabled/reverse_proxy.conf
-  notify:
-    - Reload Nginx
+- name: Remove default site symlink if it exists
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
 
+- name: Create symlink for reverse proxy configuration
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/reverse_proxy.conf
+    dest: /etc/nginx/sites-enabled/reverse_proxy.conf
+    state: link
+
+- name: Test Nginx configuration
+  ansible.builtin.command:
+    cmd: nginx -t
+  register: nginx_test_result
+  ignore_errors: true
+
+- name: Fail if Nginx configuration test fails
+  ansible.builtin.fail:
+    msg: "Nginx configuration test failed. Check the template file."
+  when: nginx_test_result.rc != 0
+
+# Reload Nginx only if configuration is valid
+- name: Reload Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+  when: nginx_test_result.rc == 0
